@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Video from 'react-native-video';
+import { responsiveHeight, responsiveWidth, responsiveFontSize } from 'react-native-responsive-dimensions';
 import {
   TouchableWithoutFeedback,
   TouchableHighlight,
@@ -33,7 +34,8 @@ export default class VideoPlayer extends Component {
       rate: this.props.rate || 1,
 
       // Controls
-      isFullscreen: this.props.resizeMode === 'cover' || false,
+      isFullscreen: this.props.isFullscreen || false,
+      enableSubtitle: this.props.enableSubtitle || false,
       showTimeRemaining: true,
       volumeTrackWidth: 0,
       lastScreenPress: 0,
@@ -83,6 +85,7 @@ export default class VideoPlayer extends Component {
     this.methods = {
       onBack: this.props.onBack || this._onBack.bind(this),
       toggleFullscreen: this._toggleFullscreen.bind(this),
+      toggleSubtitle: this._toggleSubtitle.bind(this),
       togglePlayPause: this._togglePlayPause.bind(this),
       toggleControls: this._toggleControls.bind(this),
       toggleTimer: this._toggleTimer.bind(this)
@@ -381,6 +384,21 @@ export default class VideoPlayer extends Component {
       state.isFullscreen = !state.isFullscreen;
       state.resizeMode = state.isFullscreen === true ? 'cover' : 'contain';
 
+      this.setState(state);
+    }
+  }
+
+    /**
+   * Toggle subtitle changes resizeMode on
+   * the <Video> component then updates the
+   * enableSubtitle state.
+   */
+  _toggleSubtitle() {
+    if (this.props.toggleSubtitle) {
+      this.props.toggleSubtitle();
+    } else {
+      let state = this.state;
+      state.enableSubtitle = !state.enableSubtitle;
       this.setState(state);
     }
   }
@@ -822,6 +840,9 @@ export default class VideoPlayer extends Component {
     const fullscreenControl = !this.props.disableFullscreen
       ? this.renderFullscreen()
       : this.renderNullControl();
+    const subtitleControl = !this.props.disableSubtitle
+      ? this.renderSubtitleControl()
+      : this.renderNullControl();
 
     return (
       <Animated.View
@@ -840,6 +861,7 @@ export default class VideoPlayer extends Component {
             {backControl}
             <View style={styles.controls.pullRight}>
               {volumeControl}
+              {subtitleControl}
               {fullscreenControl}
             </View>
           </View>
@@ -892,12 +914,27 @@ export default class VideoPlayer extends Component {
   renderFullscreen() {
     let source =
       this.props.isFullscreen === true
-        ? require('./assets/img/my_shrink.png')
-        : require('./assets/img/my_expand.png');
+        ? require('./assets/img/shrink.png')
+        : require('./assets/img/expand.png');
     return this.renderControl(
       <Image source={source} />,
       this.methods.toggleFullscreen,
       styles.controls.fullscreen
+    );
+  }
+
+  /**
+   * Render subtitle toggle and set icon based on the subtitle state.
+   */
+  renderSubtitleControl() {
+    let source =
+      this.props.subtitle != false
+        ? require('./assets/img/subtitle.png')
+        : require('./assets/img/subtitle.png');
+    return this.renderControl(
+      <Image source={source} />,
+      this.methods.toggleSubtitle,
+      styles.controls.subtitle
     );
   }
 
@@ -1071,16 +1108,21 @@ export default class VideoPlayer extends Component {
     return null;
   }
   renderSubtitle() {
-    return (
-      <View
-        style={
-          this.props.isFullscreen
-            ? styles.player.subtitleContainerLandscape
-            : styles.player.subtitleContainerPortrait
-        }>
-        <Text style={styles.player.subtitle}>{this.showSubtitle()}</Text>
-      </View>
-    );
+    if (this.state.enableSubtitle) {
+      let text = this.showSubtitle();
+      if (text) {
+        return (
+          <View
+            style={
+              this.props.isFullscreen
+                ? styles.player.subtitleContainerLandscape
+                : styles.player.subtitleContainerPortrait
+            }>
+            <Text style={styles.player.subtitle}>{text}</Text>
+          </View>
+        );
+      }
+    }
   }
 
   /**
@@ -1138,18 +1180,23 @@ const styles = {
       textShadowColor: 'black',
       textShadowOffset: { width: 1, height: 1 },
       paddingRight: 10,
-      paddingLeft: 10
+      paddingLeft: 10,
+      fontSize:responsiveWidth(4),
     },
     subtitleContainerPortrait: {
       position: 'absolute',
-      top: 200,
-      left: 100,
-      alignItems: 'center'
+      bottom: 10,
+      left: responsiveWidth(15),
+      width: responsiveWidth(70),
+      alignItems: 'center',
+      backgroundColor:'rgba(0, 0, 0, 0.25)'
     },
     subtitleContainerLandscape: {
       position: 'absolute',
-      bottom: 50,
-      left: 250
+      bottom: responsiveWidth(20),
+      left: responsiveHeight(15),
+      width: responsiveHeight(70),
+      backgroundColor:'rgba(0, 0, 0, 0.25)'
     },
     video: {
       overflow: 'hidden',
@@ -1253,6 +1300,9 @@ const styles = {
       flexDirection: 'row'
     },
     fullscreen: {
+      flexDirection: 'row'
+    },
+    subtitle: {
       flexDirection: 'row'
     },
     playPause: {
