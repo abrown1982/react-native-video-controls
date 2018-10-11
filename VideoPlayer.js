@@ -1376,15 +1376,17 @@ const styles = {
     },
     handle: {
       position: 'absolute',
-      marginLeft: -7,
+      marginLeft: -20,
+      marginTop:-6,
       height: 28,
-      width: 28
+      width: 28,
+      padding:20
     },
     circle: {
       borderRadius: 12,
       position: 'relative',
-      top: 8,
-      left: 8,
+      top: -5,
+      left: -5,
       height: 12,
       width: 12
     }
