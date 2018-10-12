@@ -396,11 +396,10 @@ export default class VideoPlayer extends Component {
   _toggleSubtitle() {
     if (this.props.toggleSubtitle) {
       this.props.toggleSubtitle();
-    } else {
-      let state = this.state;
-      state.enableSubtitle = !state.enableSubtitle;
-      this.setState(state);
     }
+    let state = this.state;
+    state.enableSubtitle = !state.enableSubtitle;
+    this.setState(state);
   }
 
   /**
