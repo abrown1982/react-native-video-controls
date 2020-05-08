@@ -999,14 +999,14 @@ export default class VideoPlayer extends Component {
             style={[
               styles.seekbar.fill,
               {
-                width: this.state.seekerFillWidth,
+                width: this.state.seekerFillWidth ? this.state.seekerFillWidth : 0,
                 backgroundColor: this.props.seekColor || '#FFF'
               }
             ]}
           />
         </View>
         <View
-          style={[styles.seekbar.handle, { left: this.state.seekerPosition }]}
+          style={[styles.seekbar.handle, { left: this.state.seekerPosition ? this.state.seekerPosition : 0 }]}
           {...this.player.seekPanResponder.panHandlers}>
           <View
             style={[
